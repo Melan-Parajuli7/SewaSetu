@@ -113,8 +113,8 @@ sewa-setu/
 ## 👨‍💻 Author
 
 **Your Name**  
-GitHub: [your-username](https://github.com/MELAN-PARAJULI7)  
-LinkedIn: [your-linkedin-profile](https://www.linkedin.com/in/melan-parajuli-b19b08349/)
+GitHub: [Melan Parajuli](https://github.com/MELAN-PARAJULI7)  
+LinkedIn: [Melan Parajuli](https://www.linkedin.com/in/melan-parajuli-b19b08349/)
 
 ---
 

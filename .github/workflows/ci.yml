@@ -1,0 +1,14 @@
+name: SewaSetu Starter Workflow
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Display a message
+        run: echo "SewaSetu workflow is running successfully!"

@@ -1,0 +1,11 @@
+name: Sewasetu
+version: 1.0
+stack:
+    frontend: React
+    backend: Node.jobs
+    database: MongoDB
+services: 
+    - authencation
+    - bookings
+    - reviews
+    - payments

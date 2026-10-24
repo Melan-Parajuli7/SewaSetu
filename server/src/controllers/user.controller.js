@@ -1,5 +1,50 @@
 const userService = require("../services/user.services");
 
+// simple validation helper - easy for beginners to understand
+
+const validateRegister = (data) => {
+  const errors = [];
+
+  if (!data.name || data.name.trim() == "") {
+    errors.push("Name is Required");
+  }
+
+  if (!data.email || data.email.trim() == "") {
+    errors.push("Email is Required");
+  } else if (!data.email.includes("@")) {
+    errors.push("Please Provide a valid email address");
+  }
+
+  if (!data.password || data.password.trim() == "") {
+    errors.push("Password is Required");
+  } else if (data.password.length < 6) {
+    errors.push("Password must be at least 6 characters");
+  }
+  return errors;
+};
+
+const validateLogin = (data) => {
+  const errors = [];
+
+  const phone = data.phone?.trim() || "";
+  const email = data.email?.trim() || "";
+  const password = data.password?.trim() || "";
+
+  // At least one of phone or email is required
+  if (!phone && !email) {
+    errors.push("Either phone number or email is required");
+  }
+
+  // Password is always required
+  if (!password) {
+    errors.push("Password is Required");
+  }
+
+  return errors;
+};
+
+// ------------------------------------------------------------------------------------------------------------------- //
+
 // register User
 
 const register = async (req, res) => {

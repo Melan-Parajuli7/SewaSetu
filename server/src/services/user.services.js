@@ -32,31 +32,67 @@ const registerUser = async (userData) => {
 // User login Bussiness Logic
 
 const loginUser = async (phone, email, password) => {
-  // phone instead of email because most of the people are familier with phone and password
-  // login pattern instead of email or password
   try {
-    const user = await User.findOne({ phone, email }).select("+password");
+    const phoneVal = phone?.trim() || "";
+    const emailVal = email?.trim() || "";
+
+    // 1. Ensure at least one identifier is provided
+    if (!phoneVal && !emailVal) {
+      const error = new Error("Phone or Email is required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (!password || !password.trim()) {
+      const error = new Error("Password is required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // 2. Build the query dynamically based on what was provided
+    let query = {};
+
+    if (phoneVal && phoneVal.includes("@")) {
+      // User typed an email into the phone field (common frontend mistake)
+      query = { email: phoneVal.toLowerCase() };
+    } else if (emailVal && !emailVal.includes("@")) {
+      // User typed a phone into the email field
+      query = { phone: emailVal };
+    } else if (phoneVal) {
+      // Normal phone login
+      query = { phone: phoneVal };
+    } else {
+      // Normal email login
+      query = { email: emailVal.toLowerCase() };
+    }
+
+    console.log("Searching DB with query:", query);
+
+    // 3. Find the user (using the dynamic query)
+    const user = await User.findOne(query).select("+password");
 
     if (!user) {
-      const error = new Error("Invalid credientals");
+      const error = new Error("Invalid credentials");
       error.statusCode = 401;
       throw error;
     }
-    if (!user.status) {
+
+    // 4. Check if account is suspended
+    if (!user.status || user.status === "suspended") {
       const error = new Error("Your account is suspended");
       error.statusCode = 403;
       throw error;
     }
 
+    // 5. Verify password
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      const error = new Error("Invalid credientals");
+      const error = new Error("Invalid credentials");
       error.statusCode = 401;
       throw error;
     }
 
-    // Generate token using model method (which already includes role)
-
+    // 6. Generate Token and return success
     const token = user.generateJWT();
     const userObject = user.toObject();
     delete userObject.password;
@@ -68,7 +104,7 @@ const loginUser = async (phone, email, password) => {
       name: userObject.name,
     };
   } catch (error) {
-    console.error("Error in Login User", error.message);
+    console.error("Error in Login User:", error.message);
     throw error;
   }
 };

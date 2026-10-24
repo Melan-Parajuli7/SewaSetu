@@ -32,9 +32,9 @@ const UserSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: true,
+      sparse: true,
       unique: true,
-      default: null,
+      trim: true,
     },
     avatar: {
       type: String,
@@ -78,8 +78,27 @@ UserSchema.pre("save", async function () {
 
 // compare passowrd for login
 
+// Ensure this is exactly as written
 UserSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  // 1. Ensure we actually have the stored hash
+  if (!this.password) {
+    console.error("comparePassword: this.password is missing from DB document!");
+    return false;
+  }
+  
+  // 2. Compare
+  const isMatch = await bcrypt.compare(candidatePassword, this.password);
+  
+  
+  return isMatch;
+};
+
+// Fix the casing and typo here too
+UserSchema.methods.toJSON = function () {
+  const userObject = this.toObject();
+  delete userObject.password;
+  delete userObject.__v; // Fix: double underscore
+  return userObject;
 };
 
 // generate JWT token
@@ -99,10 +118,10 @@ UserSchema.methods.generateJWT = function () {
 };
 
 
-UserSchema.methods.toJson = function (){
+UserSchema.methods.toJSON = function (){
     const userObject = this.toObject();
     delete userObject.password;
-    delete userObject._v;
+    delete userObject.__v;
     return userObject;
 };
 

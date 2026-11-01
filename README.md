@@ -111,8 +111,7 @@ sewa-setu/
 ```
 
 ## 👨‍💻 Author
-
-**Your Name**  
+ 
 GitHub: [Melan Parajuli](https://github.com/MELAN-PARAJULI7)  
 LinkedIn: [Melan Parajuli](https://www.linkedin.com/in/melan-parajuli-b19b08349/)
 

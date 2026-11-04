@@ -1,5 +1,5 @@
 const userService = require("../services/user.services");
-
+const emailService = require("../services/email.services");
 // simple validation helper - easy for beginners to understand
 
 const validateRegister = (data) => {
@@ -49,24 +49,25 @@ const validateLogin = (data) => {
 
 const register = async (req, res) => {
   try {
-    // Simple Validators
     const errors = validateRegister(req.body);
     if (errors.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation Failed",
-        error: errors,
-      });
+      return res.status(400).json({ success: false, message: "Validation Failed", error: errors });
     }
+
     const { name, email, password, role, phone } = req.body;
-    const result = await userService.registerUser({
-      name,
-      email,
-      password,
-      role,
-      phone,
-    });
-    res.status(201).json({
+
+    const result = await userService.registerUser({ name, email, password, role, phone });
+
+    // Send the email AFTER the user is created, BEFORE responding.
+    // Await it so we can log/observe failures (see note below).
+    try {
+      await emailService.sendRegistrationEmail(email, name);
+    } catch (mailErr) {
+      console.error("Registration email failed:", mailErr.message);
+      // Don't fail registration just because email failed — or do, your call.
+    }
+
+    return res.status(201).json({
       success: true,
       message: result.message,
       data: result.data,
